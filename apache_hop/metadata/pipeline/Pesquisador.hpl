@@ -86,16 +86,6 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Sort rows Instituicao</from>
-      <to>Merge join 2</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Table input Instituicao</from>
-      <to>Sort rows Instituicao</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>Merge join 2</from>
       <to>Table output</to>
       <enabled>Y</enabled>
@@ -443,6 +433,35 @@
     </GUI>
   </transform>
   <transform>
+    <name>If Null</name>
+    <type>IfNull</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>NOME-INSTITUICAO</name>
+        <set_empty_string>N</set_empty_string>
+        <value>Não Identificada</value>
+      </field>
+    </fields>
+    <selectFields>Y</selectFields>
+    <selectValuesType>N</selectValuesType>
+    <setEmptyStringAll>N</setEmptyStringAll>
+    <valuetypes>
+</valuetypes>
+    <attributes/>
+    <GUI>
+      <xloc>704</xloc>
+      <yloc>384</yloc>
+    </GUI>
+  </transform>
+  <transform>
     <name>JavaScript</name>
     <type>ScriptValueMod</type>
     <description/>
@@ -544,8 +563,8 @@ if(POSDOUTORADO == "CONCLUIDO") {
     <transform2>Sort rows Instituicao</transform2>
     <attributes/>
     <GUI>
-      <xloc>1600</xloc>
-      <yloc>560</yloc>
+      <xloc>1648</xloc>
+      <yloc>400</yloc>
     </GUI>
   </transform>
   <transform>
@@ -599,38 +618,6 @@ if(POSDOUTORADO == "CONCLUIDO") {
     <GUI>
       <xloc>560</xloc>
       <yloc>384</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Sort rows Instituicao</name>
-    <type>SortRows</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <compress>N</compress>
-    <directory>${java.io.tmpdir}</directory>
-    <fields>
-      <field>
-        <ascending>Y</ascending>
-        <case_sensitive>N</case_sensitive>
-        <collator_enabled>N</collator_enabled>
-        <collator_strength>0</collator_strength>
-        <name>nome_instituicao</name>
-        <presorted>N</presorted>
-      </field>
-    </fields>
-    <sort_prefix>out</sort_prefix>
-    <sort_size>100000</sort_size>
-    <unique_rows>N</unique_rows>
-    <attributes/>
-    <GUI>
-      <xloc>1488</xloc>
-      <yloc>720</yloc>
     </GUI>
   </transform>
   <transform>
@@ -779,29 +766,6 @@ if(POSDOUTORADO == "CONCLUIDO") {
     </GUI>
   </transform>
   <transform>
-    <name>Table input Instituicao</name>
-    <type>TableInput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <connection>DB_PROJETO</connection>
-    <execute_each_row>N</execute_each_row>
-    <limit>0</limit>
-    <sql>SELECT id_instituicao, nome as nome_instituicao
-FROM "public".instituicao</sql>
-    <variables_active>N</variables_active>
-    <attributes/>
-    <GUI>
-      <xloc>64</xloc>
-      <yloc>720</yloc>
-    </GUI>
-  </transform>
-  <transform>
     <name>Table input Pesquisador</name>
     <type>TableInput</type>
     <description/>
@@ -882,40 +846,8 @@ FROM "public".pesquisador</sql>
     <use_batch>Y</use_batch>
     <attributes/>
     <GUI>
-      <xloc>1744</xloc>
-      <yloc>560</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>If Null</name>
-    <type>IfNull</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-      <field>
-        <mask/>
-        <name>NOME-INSTITUICAO</name>
-        <set_empty_string>N</set_empty_string>
-        <value>Não Identificada</value>
-      </field>
-    </fields>
-    <replaceAllByValue/>
-    <replaceAllMask/>
-    <selectFields>Y</selectFields>
-    <selectValuesType>N</selectValuesType>
-    <setEmptyStringAll>N</setEmptyStringAll>
-    <valuetypes>
-</valuetypes>
-    <attributes/>
-    <GUI>
-      <xloc>704</xloc>
-      <yloc>384</yloc>
+      <xloc>1776</xloc>
+      <yloc>400</yloc>
     </GUI>
   </transform>
   <transform_error_handling>
