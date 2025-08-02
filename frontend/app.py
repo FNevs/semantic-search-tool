@@ -54,20 +54,35 @@ with tab1:
 with tab2:
     st.header("Search Publications")
     
+    # Add search mode selection
+    search_mode = st.radio(
+        "Search by:",
+        ["Search by Publication Title", "Search by Author Name"]
+    )
+    
     # Search input
     search_query = st.text_input("Enter search term")
     
     if st.button("Search") and search_query:
         with st.spinner("Searching..."):
             try:
+                # Determine which endpoint to use based on search mode
+                if search_mode == "Search by Publication Title":
+                    endpoint = "/search"
+                    params = {"query": search_query}
+                else:  # Search by Author Name
+                    endpoint = "/search-by-author"
+                    params = {"name": search_query}
+                
                 # Send search query to backend
-                response = requests.get(f"{BACKEND_URL}/search", params={"query": search_query})
+                response = requests.get(f"{BACKEND_URL}{endpoint}", params=params)
                 
                 if response.status_code == 200:
                     results = response.json()
                     
                     if results:
-                        st.subheader(f"Found {len(results)} results for '{search_query}'")
+                        search_type = "publication title" if search_mode == "Search by Publication Title" else "author name"
+                        st.subheader(f"Found {len(results)} results for {search_type} '{search_query}'")
                         
                         # Display results in a nice format
                         for i, result in enumerate(results, 1):
@@ -75,7 +90,8 @@ with tab2:
                                 st.markdown(f"**Researcher:** {result['researcher']}")
                                 st.markdown(f"**Title:** {result['title']}")
                     else:
-                        st.info(f"No publications found matching '{search_query}'")
+                        search_type = "publication titles" if search_mode == "Search by Publication Title" else "author names"
+                        st.info(f"No {search_type} found matching '{search_query}'")
                 else:
                     st.error(f"Error: {response.status_code} - {response.text}")
             except requests.exceptions.ConnectionError:

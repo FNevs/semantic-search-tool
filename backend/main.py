@@ -29,13 +29,14 @@ def init_db():
     )
     ''')
     
-    # Create publications table
+    # Create publications table with UNIQUE constraint
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS publications (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
         researcher_id INTEGER,
-        FOREIGN KEY (researcher_id) REFERENCES researchers (id)
+        FOREIGN KEY (researcher_id) REFERENCES researchers (id),
+        UNIQUE(title, researcher_id)
     )
     ''')
     
@@ -118,11 +119,13 @@ async def process_xmls(files: List[UploadFile] = File(...)):
             else:
                 researcher_id = researcher[0]
             
-            # Insert publications
+            # Insert publications using INSERT OR IGNORE to prevent duplicates
             for title in publications:
-                cursor.execute("INSERT INTO publications (title, researcher_id) VALUES (?, ?)", 
+                cursor.execute("INSERT OR IGNORE INTO publications (title, researcher_id) VALUES (?, ?)", 
                               (title, researcher_id))
-                publications_count += 1
+                # Only increment the count if a row was actually inserted
+                if cursor.rowcount > 0:
+                    publications_count += 1
             
             processed_count += 1
     
@@ -135,7 +138,7 @@ async def process_xmls(files: List[UploadFile] = File(...)):
         "publications_added": publications_count
     }
 
-# Endpoint to search for publications
+# Endpoint to search for publications by title
 @app.get("/search")
 async def search_publications(query: str = Query(...)):
     conn = sqlite3.connect('lattes.db')
@@ -148,6 +151,33 @@ async def search_publications(query: str = Query(...)):
     JOIN researchers r ON p.researcher_id = r.id 
     WHERE LOWER(p.title) LIKE LOWER(?)
     """, (f'%{query}%',))
+    
+    results = []
+    for row in cursor.fetchall():
+        results.append({
+            "title": row[0],
+            "researcher": row[1]
+        })
+    
+    conn.close()
+    
+    return results
+
+# Endpoint to search for publications by author name
+@app.get("/search-by-author")
+async def search_publications_by_author(name: str = Query(...)):
+    conn = sqlite3.connect('lattes.db')
+    cursor = conn.cursor()
+    
+    # Search for researchers with names containing the query (case-insensitive)
+    # and retrieve all their publications
+    cursor.execute("""
+    SELECT p.title, r.full_name 
+    FROM researchers r
+    JOIN publications p ON p.researcher_id = r.id 
+    WHERE LOWER(r.full_name) LIKE LOWER(?)
+    ORDER BY r.full_name, p.title
+    """, (f'%{name}%',))
     
     results = []
     for row in cursor.fetchall():
